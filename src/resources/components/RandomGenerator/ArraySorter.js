@@ -4,28 +4,31 @@ import logo from '../../../logo.svg';
 import { FileDialogue } from '../FileDialogue/FileDialogue';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
+
 export class ArraySorter extends React.Component {
   constructor() {
     super();
 
     this.state = {
       values: '',
+      sortedValues: '',
       count: 1,
       min: 0,
       max: 100,
-      sort: ''
+      sort: '',
+      time: '0'
     };
   }
 
   addNumbers() {
-    let numsToAdd = '';
+    let numsToAdd = [];
+
     for (let i = 0; i < this.state.count; i++) {
-      numsToAdd +=
-        (this.state.values === '' ? '' : ', ') +
-        this.randomInteger(this.state.min, this.state.max);
+      numsToAdd.push(this.randomInteger(this.state.min, this.state.max));
     }
     this.setState({
-      values: this.state.values + numsToAdd
+      values: (this.state.values +=
+        (this.state.values ? ', ' : '') + numsToAdd.join(', '))
     });
   }
 
@@ -37,9 +40,50 @@ export class ArraySorter extends React.Component {
     this.setState({ sort: e.value });
   }
 
+  startSort() {
+    switch (this.state.sort) {
+      case 'bubble':
+        const date1 = new Date();
+        const result = this.bubbleSort(
+          this.createArray(this.state.values)
+        ).join(', ');
+        const date2 = new Date();
+        this.setState({
+          sortedValues: result,
+          time: date2 - date1
+        });
+
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  createArray(str) {
+    var arr = str.split(',');
+    arr = arr.map(i => Number(i));
+    return arr;
+  }
+
+  bubbleSort(arr, cmp) {
+    cmp = cmp || ((a, b) => a - b);
+    var temp;
+    for (var i = 0, l = arr.length; i < l; i++) {
+      for (var j = i; j > 0; j--) {
+        if (cmp(arr[j], arr[j - 1]) < 0) {
+          temp = arr[j];
+          arr[j] = arr[j - 1];
+          arr[j - 1] = temp;
+        }
+      }
+    }
+    return arr;
+  }
+
   randomInteger(min, max) {
-    var rand = min - 0.5 + Math.random() * (max - min + 1);
-    rand = Math.round(rand);
+    var rand = min + Math.random() * (max + 1 - min);
+    rand = Math.floor(rand);
     return rand;
   }
 
@@ -96,7 +140,9 @@ export class ArraySorter extends React.Component {
                     type="button"
                     class="button"
                     value="Clear Array"
-                    onClick={() => this.setState({ values: '' })}
+                    onClick={() =>
+                      this.setState({ values: '', time: '0', sortedValues: '' })
+                    }
                   />
                 </li>
                 <li>
@@ -108,7 +154,12 @@ export class ArraySorter extends React.Component {
                   />
                 </li>
                 <li>
-                  <input type="button" class="button" value="Sort" />
+                  <input
+                    type="button"
+                    class="button"
+                    onClick={this.startSort.bind(this)}
+                    value="Sort"
+                  />
                 </li>
               </ul>
             </fieldset>
@@ -117,6 +168,7 @@ export class ArraySorter extends React.Component {
             <section>
               <p>Array: {this.state.values} </p>
               <div>Sorted Array: {this.state.sortedValues}</div>
+              <p>Elapsed time: {this.state.time} ms.</p>
             </section>
           </div>
         </div>
