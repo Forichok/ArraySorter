@@ -4,6 +4,7 @@ import logo from '../../../logo.svg';
 import { FileDialogue } from '../FileDialogue/FileDialogue';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
+import Chart from 'react-apexcharts';
 
 export class ArraySorter extends React.Component {
   constructor() {
@@ -14,9 +15,25 @@ export class ArraySorter extends React.Component {
       sortedValues: '',
       count: 1,
       min: 0,
-      max: 100,
+      max: 10,
       sort: '',
-      time: '0'
+      time: '0',
+      chart: {
+        options: {
+          chart: {
+            id: 'basic-bar'
+          },
+          xaxis: {
+            categories: []
+          }
+        },
+        series: [
+          {
+            name: 'series-1',
+            data: []
+          }
+        ]
+      }
     };
   }
 
@@ -41,23 +58,58 @@ export class ArraySorter extends React.Component {
   }
 
   startSort() {
+    let result = [];
+    const date1 = new Date();
     switch (this.state.sort) {
       case 'bubble':
-        const date1 = new Date();
-        const result = this.bubbleSort(
-          this.createArray(this.state.values)
-        ).join(', ');
-        const date2 = new Date();
+        result = this.bubbleSort(this.createArray(this.state.values));
         this.setState({
-          sortedValues: result,
-          time: date2 - date1
+          sortedValues: result.join(', ')
         });
-
         break;
 
       default:
         break;
     }
+    const date2 = new Date();
+    this.setState({
+      time: date2 - date1
+    });
+
+    let arr = [];
+    for (let i = this.state.min; i <= this.state.max; i++) {
+      arr[i] = 0;
+    }
+    result.forEach(e => {
+      arr[e]++;
+    });
+
+    let valY = [];
+    let valX = [];
+
+    for (var key in arr) {
+      valX.push(key);
+      valY.push(arr[key]);
+    }
+
+    this.setState({
+      chart: {
+        options: {
+          chart: {
+            id: 'basic-bar'
+          },
+          xaxis: {
+            categories: valX
+          }
+        },
+        series: [
+          {
+            name: 'series-1',
+            data: valY
+          }
+        ]
+      }
+    });
   }
 
   createArray(str) {
@@ -161,6 +213,16 @@ export class ArraySorter extends React.Component {
                     value="Sort"
                   />
                 </li>
+                <li>
+                  <p>Elapsed time: {this.state.time} ms.</p>
+                </li>
+                <li>
+                  <Chart
+                    options={this.state.chart.options}
+                    series={this.state.chart.series}
+                    type="bar"
+                  />
+                </li>
               </ul>
             </fieldset>
           </nav>
@@ -168,7 +230,6 @@ export class ArraySorter extends React.Component {
             <section>
               <p>Array: {this.state.values} </p>
               <div>Sorted Array: {this.state.sortedValues}</div>
-              <p>Elapsed time: {this.state.time} ms.</p>
             </section>
           </div>
         </div>
