@@ -1,0 +1,89 @@
+.button {
+  border-radius: 10px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 12px;
+  background: #1a3b52;
+  padding: 7px 8px 7px 8px;
+  border: solid #0b3853 2px;
+  text-decoration: none;
+  width: 150px;
+}
+
+.button:hover {
+  background: #61dafb;
+  color: #082233;
+  text-decoration: none;
+}
+
+body {
+  font: 12px verdana, sans-serif;
+  margin: 0px;
+}
+header {
+  background-color: rgb(24, 45, 59);
+  padding: 10px;
+  color: #f0f0f0;
+}
+header h1 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+.container {
+  width: 100%;
+  background-color: #f0f0f0;
+}
+nav {
+  padding: 10px;
+  float: left;
+  width: 20%;
+  box-sizing: border-box;
+  min-height: 170px;
+}
+nav ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+nav ul li {
+  margin-bottom: 5px;
+}
+nav ul li a {
+  color: #3d677e;
+}
+nav ul li a:hover {
+  text-decoration: none;
+}
+.content {
+  float: left;
+  width: 80%;
+  min-height: 170px;
+}
+.content section {
+  padding: 10px;
+}
+section h2 {
+  font-size: 16px;
+  margin: 0px;
+}
+.clearfix:after {
+  content: '.';
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+footer {
+  background-color: rgb(24, 45, 59);
+  color: #ffffff;
+  padding: 10px;
+}
+footer p {
+  text-align: center;
+  margin: 5px;
+}
+.App-logo {
+  animation: App-logo-spin infinite 10s linear;
+  height: 10vmin;
+  pointer-events: none;
+}
