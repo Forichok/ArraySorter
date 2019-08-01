@@ -1,7 +1,6 @@
 import React from 'react';
 import './ArraySorter.css';
 import logo from '../../../logo.svg';
-import { FileDialogue } from '../FileDialogue/FileDialogue';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import Chart from 'react-apexcharts';
@@ -9,7 +8,7 @@ import Chart from 'react-apexcharts';
 export class ArraySorter extends React.Component {
   constructor() {
     super();
-
+    this.sortOptions = ['Bubble', 'Quick Sort', 'Iterative Quick Sort'];
     this.state = {
       values: '',
       sortedValues: '',
@@ -44,8 +43,10 @@ export class ArraySorter extends React.Component {
       numsToAdd.push(this.randomInteger(this.state.min, this.state.max));
     }
     this.setState({
-      values: (this.state.values +=
-        (this.state.values ? ', ' : '') + numsToAdd.join(', '))
+      values:
+        this.state.values +
+        (this.state.values ? ', ' : '') +
+        numsToAdd.join(', ')
     });
   }
 
@@ -61,55 +62,77 @@ export class ArraySorter extends React.Component {
     let result = [];
     const date1 = new Date();
     switch (this.state.sort) {
-      case 'bubble':
+      case 'Bubble':
         result = this.bubbleSort(this.createArray(this.state.values));
-        this.setState({
-          sortedValues: result.join(', ')
-        });
         break;
-
+      case 'Quick Sort':
+        result = this.quickSort(this.createArray(this.state.values));
+        break;
+      case 'Iterative Quick Sort':
+        result = this.quickSortIterative(this.createArray(this.state.values));
+        break;
       default:
         break;
     }
     const date2 = new Date();
     this.setState({
-      time: date2 - date1
+      time: date2 - date1,
+      sortedValues: result.join(', ')
     });
+  }
 
-    let arr = [];
-    for (let i = this.state.min; i <= this.state.max; i++) {
-      arr[i] = 0;
-    }
-    result.forEach(e => {
-      arr[e]++;
-    });
+  swap(arr, a, b) {
+    const t = arr[a];
+    arr[a] = arr[b];
+    arr[b] = t;
+  }
 
-    let valY = [];
-    let valX = [];
+  /* This function is same in both iterative and recursive*/
+  partition(arr, l, h) {
+    let x = arr[h];
+    let i = l - 1;
 
-    for (var key in arr) {
-      valX.push(key);
-      valY.push(arr[key]);
-    }
-
-    this.setState({
-      chart: {
-        options: {
-          chart: {
-            id: 'basic-bar'
-          },
-          xaxis: {
-            categories: valX
-          }
-        },
-        series: [
-          {
-            name: 'series-1',
-            data: valY
-          }
-        ]
+    for (let j = l; j <= h - 1; j++) {
+      if (arr[j] <= x) {
+        i++;
+        this.swap(arr, i, j);
       }
-    });
+    }
+    this.swap(arr, i + 1, h);
+    return i + 1;
+  }
+
+  /* A[] --> Array to be sorted,  
+l --> Starting index,  
+h --> Ending index */
+  quickSortIterative(arr) {
+    let l = 0;
+    let h = arr.length - 1;
+
+    let stack = [];
+
+    stack.push(l);
+    stack.push(h);
+
+    while (stack.length) {
+      h = stack.pop();
+      l = stack.pop();
+
+      let p = this.partition(arr, l, h);
+
+      if (p - 1 > l) {
+        //push left
+        stack.push(l);
+        stack.push(p - 1);
+      }
+
+      if (p + 1 < h) {
+        //push right
+        stack.push(p + 1);
+        stack.push(h);
+      }
+    }
+    return arr;
   }
 
   createArray(str) {
@@ -133,6 +156,27 @@ export class ArraySorter extends React.Component {
     return arr;
   }
 
+  quickSort(arr) {
+    if (arr.length <= 1) {
+      return arr;
+    }
+    let pivotPosition = Math.floor(arr.length / 2);
+    let pivotValue = arr[pivotPosition];
+    let less = [],
+      more = [],
+      same = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === pivotValue) {
+        same.push(arr[i]);
+      } else if (arr[i] > pivotValue) {
+        more.push(arr[i]);
+      } else {
+        less.push(arr[i]);
+      }
+    }
+    return this.quickSort(less).concat(same, this.quickSort(more));
+  }
+
   randomInteger(min, max) {
     var rand = min + Math.random() * (max + 1 - min);
     rand = Math.floor(rand);
@@ -140,8 +184,6 @@ export class ArraySorter extends React.Component {
   }
 
   render() {
-    const options = ['bubble', 'two', 'three'];
-
     return (
       <div class="container">
         <header>
@@ -199,7 +241,7 @@ export class ArraySorter extends React.Component {
                 </li>
                 <li>
                   <Dropdown
-                    options={options}
+                    options={this.sortOptions}
                     onChange={this.sortChange.bind(this)}
                     value={this.state.sort}
                     placeholder="Select sort method"
